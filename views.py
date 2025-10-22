@@ -1,0 +1,190 @@
+# coding: utf-8
+DEBUG=False
+
+import sys
+major=sys.version_info.major
+minor=sys.version_info.minor
+if major==2 and minor==7 :
+    import Tkinter as tk
+    import tkFileDialog as filedialog
+elif major==3 :
+    import tkinter as tk
+    from tkinter import filedialog
+else :
+    if __name__ == "__main__" :
+        print("Your python version is : ",major,minor)
+        print("... I guess it will work !")
+    import tkinter as tk
+    from tkinter import filedialog 
+
+from models import Communication
+from observer import Observer
+
+class Screen(Observer) :
+    def __init__(self,parent,bg="white",largeur=150,hauteur=60):
+        self.parent=parent
+        self.bg=bg
+        self.largeur,self.hauteur=largeur,hauteur
+        self.color="red"
+        self.gui() 
+        self.actions_binding()
+        self.draw_axes()
+
+    def get_parent(self) :
+        return self.parent
+    def set_parent(self,parent) :
+        self.parent=parent
+    def gui(self) :
+        self.frame = tk.Frame(self.parent, bg="white")
+
+        self.vitesse = tk.Canvas(self.frame, width=self.largeur, height=self.hauteur, bg="black", highlightthickness=2, highlightbackground="gray")
+        self.intensite = tk.Canvas(self.frame, width=self.largeur, height=self.hauteur, bg="black", highlightthickness=2, highlightbackground="gray")
+
+        self.temps_aservissement = tk.Canvas(self.frame, width=self.largeur, height=self.hauteur, bg="black", highlightthickness=2, highlightbackground="gray")
+
+        self.visualisation=tk.Canvas(self.parent,bg=self.bg,width=600,height=300)
+        self.text_vitesse = self.vitesse.create_text(
+            self.largeur - 10, self.hauteur // 2,
+            text="--", fill="lime", font=("Arial", 24, "bold"), anchor="e"
+        )
+        self.text_intensite = self.intensite.create_text(
+            self.largeur - 10, self.hauteur // 2,
+            text="--", fill="cyan", font=("Arial", 24, "bold"), anchor="e"
+        )
+        self.text_temps_aservissement = self.temps_aservissement.create_text(
+            self.largeur - 10, self.hauteur // 2,
+            text="--", fill="red", font=("Arial", 24, "bold"), anchor="e"
+        )
+        
+    def actions_binding(self) :
+        if DEBUG :
+            print(type(self).__name__+".actions_binding()")
+        
+    def update(self,subject):
+        if subject:
+            vitesse = subject.get_vitesse()
+            intensite = subject.get_intensite()
+
+
+
+            if vitesse is not None and intensite is not None:
+                self.vitesse.itemconfig(self.text_vitesse, text=str(vitesse))
+                self.intensite.itemconfig(self.text_intensite, text=str(intensite))
+            else:
+                self.vitesse.itemconfig(self.text_vitesse, text="--")
+                self.intensite.itemconfig(self.text_intensite, text="--")
+
+            vitesses = subject.get_vitesses()
+            if vitesses :
+                self.plot_line(vitesses,"blue", "vitesse_reelle")
+                print(vitesses)
+            else:
+                print("No vitesses !")
+
+            vitesse_repere = subject.get_vitesse_repere()
+            if vitesse_repere:
+                self.plot_line(vitesse_repere, "red", "vitesse_reference")
+                print(vitesse_repere)
+            else :
+                print("No vitesses repere !")
+
+        else:
+            self.vitesse.itemconfig(self.text_vitesse, text="N/A")
+            self.intensite.itemconfig(self.text_intensite, text="N/A")
+
+
+    def update_temps(self, subject):
+        if subject:
+            temps_min = subject.get_temps_min()
+            temps_max = subject.get_temps_max()
+
+            if temps_min and temps_max:
+                self.tracer_axes_temps(subject.get_temps_min(),"temps_min")
+                self.tracer_axes_temps(subject.get_temps_max(),"temps_max")
+
+                self.temps_aservissement.itemconfig(self.text_vitesse, text=str(temps_max-temps_min) + " s")
+
+            else:
+                self.temps_aservissement.itemconfig(self.text_vitesse, text="--")
+                print("temps_max ou temps min non defini")
+        else :
+            self.temps_aservissement.itemconfig(self.text_intensite, text="N/A")
+
+    def plot_line(self, vitesses, color, name):
+        width = 600
+        height = 300
+        margin_x = 40
+        margin_y = 20
+
+        coords = []
+        for t, v in enumerate(vitesses):
+            # Conversion vers coordonnées Canvas (t: 0–99, v: 0–100)
+            x = margin_x + (t / 100) * (width - margin_x - 10)
+            y = height - margin_y - (v / 100) * (height - margin_y - 10)
+            coords.extend((x, y))
+        self.visualisation.delete(name)
+        self.visualisation.create_line(coords, fill=color, smooth=1, width=3, tags=name)
+
+    def tracer_axes_temps(self, temps, name ):
+        # height = int(self.visualisation['height'])
+        height = 300
+        width = 600
+        margin_x = 40
+        t =margin_x +  (temps / 100) * (width - margin_x - 10)
+        self.visualisation.delete(name)
+        self.visualisation.create_line(t, 0, t, height, fill="yellow", width=2, tags=name)
+
+    def resize(self,event):
+        if DEBUG :
+            print(type(self).__name__+".resize()")
+            print("width,height : ",(event.width,event.height))
+        self.width,self.height=event.width,event.height
+        # TODO : manage grid and signal refresh in resizing()
+
+    def draw_axes(self):
+        width = 600
+        height = 300
+        margin_x = 40
+        margin_y = 20
+
+        self.visualisation.delete("axes")
+        self.visualisation.create_line(margin_x, height - margin_y, width - 10, height - margin_y, width=2, arrow=tk.LAST, tags="axes")
+        self.visualisation.create_line(margin_x, height - margin_y, margin_x, 10, width=2, arrow=tk.LAST, tags="axes")
+
+        # Label des axes
+        self.visualisation.create_text(width - 20, height - 10, text="t (s)", font=("Arial", 10), tags="axes")
+        self.visualisation.create_text(20, 15, text="V(t)", font=("Arial", 10), tags="axes")
+
+        for i in range(0, 101, 20):
+            # Axe X : t(s)
+            x = margin_x + (i / 100) * (width - margin_x - 10)
+            self.visualisation.create_line(x, height - margin_y - 5, x, height - margin_y + 5, tags="axes")
+            self.visualisation.create_text(x, height - margin_y + 15, text=str(i), font=("Arial", 8), tags="axes")
+
+            # Axe Y : V(t)
+            y = height - margin_y - (i / 100) * (height - margin_y - 10)
+            self.visualisation.create_line(margin_x - 5, y, margin_x + 5, y, tags="axes")
+            self.visualisation.create_text(margin_x - 20, y, text=str(i), font=("Arial", 8), tags="axes")
+
+    def layout(self) :
+        self.frame.pack(padx=20, pady=20)
+        self.vitesse.pack(side="left", padx=10)
+        self.intensite.pack(side="left", padx=10)
+        self.temps_aservissement.pack(side="left", padx=10)
+        self.visualisation.pack(side="left", padx=10)
+
+if   __name__ == "__main__" :
+   root=tk.Tk()
+   model=Communication()
+   model.set_intensite(100)
+
+   model.set_vitesse(150)
+
+   view=Screen(root)
+   view.layout()
+
+   model.attach(view)
+   model.notify()
+
+   root.mainloop()
+
