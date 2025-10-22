@@ -35,14 +35,14 @@ class Screen(Observer) :
     def set_parent(self,parent) :
         self.parent=parent
     def gui(self) :
-        self.frame = tk.Frame(self.parent, bg="white")
+        self.frame = tk.Frame(self.parent)
 
         self.vitesse = tk.Canvas(self.frame, width=self.largeur, height=self.hauteur, bg="black", highlightthickness=2, highlightbackground="gray")
         self.intensite = tk.Canvas(self.frame, width=self.largeur, height=self.hauteur, bg="black", highlightthickness=2, highlightbackground="gray")
 
         self.temps_aservissement = tk.Canvas(self.frame, width=self.largeur, height=self.hauteur, bg="black", highlightthickness=2, highlightbackground="gray")
 
-        self.visualisation=tk.Canvas(self.parent,bg=self.bg,width=600,height=300)
+        self.visualisation=tk.Canvas(self.parent,bg=self.bg,width=600,height=300, background="black")
         self.text_vitesse = self.vitesse.create_text(
             self.largeur - 10, self.hauteur // 2,
             text="--", fill="lime", font=("Arial", 24, "bold"), anchor="e"
@@ -148,23 +148,23 @@ class Screen(Observer) :
         margin_y = 20
 
         self.visualisation.delete("axes")
-        self.visualisation.create_line(margin_x, height - margin_y, width - 10, height - margin_y, width=2, arrow=tk.LAST, tags="axes")
-        self.visualisation.create_line(margin_x, height - margin_y, margin_x, 10, width=2, arrow=tk.LAST, tags="axes")
+        self.visualisation.create_line(margin_x, height - margin_y, width - 10, height - margin_y, width=2, arrow=tk.LAST, tags="axes", fill="white")
+        self.visualisation.create_line(margin_x, height - margin_y, margin_x, 10, width=2, arrow=tk.LAST, tags="axes", fill="white")
 
         # Label des axes
-        self.visualisation.create_text(width - 20, height - 10, text="t (s)", font=("Arial", 10), tags="axes")
-        self.visualisation.create_text(20, 15, text="V(t)", font=("Arial", 10), tags="axes")
+        self.visualisation.create_text(width - 20, height - 10, text="t (s)", font=("Arial", 10), tags="axes", fill="white")
+        self.visualisation.create_text(20, 15, text="V(t)", font=("Arial", 10), tags="axes", fill="white")
 
         for i in range(0, 101, 20):
             # Axe X : t(s)
             x = margin_x + (i / 100) * (width - margin_x - 10)
-            self.visualisation.create_line(x, height - margin_y - 5, x, height - margin_y + 5, tags="axes")
-            self.visualisation.create_text(x, height - margin_y + 15, text=str(i), font=("Arial", 8), tags="axes")
+            self.visualisation.create_line(x, height - margin_y - 5, x, height - margin_y + 5, tags="axes" , fill="white")
+            self.visualisation.create_text(x, height - margin_y + 15, text=str(i), font=("Arial", 8), tags="axes", fill="white")
 
             # Axe Y : V(t)
             y = height - margin_y - (i / 100) * (height - margin_y - 10)
-            self.visualisation.create_line(margin_x - 5, y, margin_x + 5, y, tags="axes")
-            self.visualisation.create_text(margin_x - 20, y, text=str(i), font=("Arial", 8), tags="axes")
+            self.visualisation.create_line(margin_x - 5, y, margin_x + 5, y, tags="axes" , fill="white")
+            self.visualisation.create_text(margin_x - 20, y, text=str(i), font=("Arial", 8), tags="axes", fill="white")
 
     def layout(self) :
         self.frame.pack(padx=20, pady=20)
@@ -185,6 +185,7 @@ if   __name__ == "__main__" :
 
    model.attach(view)
    model.notify()
+   model.notify_temps()
 
    root.mainloop()
 

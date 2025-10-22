@@ -80,7 +80,7 @@ class Control :
         self.var_vitesse.set(0)
         self.scale_vitesse=tk.Scale(self.frame,variable=self.var_vitesse,
                              label="Vitesse",
-                             orient="horizontal",length=250,
+                             orient="horizontal",length=500,
                              from_=0,to=100,tickinterval=10,resolution=1)
 
     def scale_temps_min(self) :
@@ -88,7 +88,7 @@ class Control :
         self.var_temps_min.set(0)
         self.scale_temps_min=tk.Scale(self.frame_temps,variable=self.var_temps_min,
                              label="Temps debut",
-                             orient="horizontal",length=125,
+                             orient="horizontal",length=250,
                              from_=0,to=50,tickinterval=10,resolution=1)
 
     def scale_temps_max(self) :
@@ -96,12 +96,12 @@ class Control :
         self.var_temps_max.set(0)
         self.scale_temps_max=tk.Scale(self.frame_temps,variable=self.var_temps_max,
                              label="Temps final",
-                             orient="horizontal",length=125,
+                             orient="horizontal",length=250,
                              from_=50,to=100,tickinterval=10,resolution=1)
 
 
     def pause(self) :
-        self.pause_action = tk.Button(self.frame_buttons, text= "Pause" ,cursor="hand2", padx=20, pady=5)
+        self.pause_action = tk.Button(self.frame_buttons, text= "Pause" ,cursor="hand2", padx=20, pady=5, width=10)
 
     def gauche(self) :
         self.direction_gauche = tk.Button(self.frame_buttons, image=self.gauche_bg, text= "Gauche" ,cursor="hand2", padx=20, pady=5)
@@ -110,7 +110,7 @@ class Control :
         self.direction_droite = tk.Button(self.frame_buttons,image=self.droite_bg, text= "Droite" , cursor="hand2", padx=20, pady=5)
 
     def braking(self) :
-        self.brake_action = tk.Button(self.frame_buttons, text= "Frein" ,cursor="hand2", padx=20, pady=5)
+        self.brake_action = tk.Button(self.frame_buttons, text= "Frein" ,cursor="hand2", padx=20, pady=5, width=10)
         
     def actions_binding(self) :
         self.scale_vitesse.bind("<B1-Motion>",self.on_vitesse_action)

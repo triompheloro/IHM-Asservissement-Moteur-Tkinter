@@ -1,3 +1,30 @@
+# Styles généraux
+*background : #f5f5f5
+*font : Helvetica 11
+
+# Boutons
+*Button.background : #007ACC
+*Button.foreground : white
+*Button.activeBackground : #005F99
+*Button.activeForeground : white
+*Button.relief : raised
+*Button.borderWidth : 3
+*Button.cursor : hand2
+
+# Scale
+*Scale.troughColor : #d0d0d0
+*Scale.sliderRelief : raised
+*Scale.sliderLength : 20
+*Scale.background : #f5f5f5
+*Scale.foreground : #007ACC
+*Scale.highlightThickness : 0
+*Scale.font : Helvetica 11
+
+# Labels
+*Label.foreground : #333333
+
+
+
 *Labelframe.foreground : red
 *Labelframe.text : IPS
 

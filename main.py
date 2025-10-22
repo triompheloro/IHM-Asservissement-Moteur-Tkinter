@@ -98,8 +98,6 @@ class MainWindow(tk.Tk) :
                 # if other key ("Help", ...)  : add  callbacks
             menubar.add_cascade(label=key,underline=0,menu=menu)
     
-    
-    
     def on_file_actions(self,name): 
         if DEBUG :
             print("on_file_actions()")  
