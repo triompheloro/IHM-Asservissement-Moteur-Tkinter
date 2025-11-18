@@ -71,6 +71,8 @@ class MainWindow(tk.Tk) :
 
         control=Control(self,self.model,view, droite_img, gauche_img, 'COM4')
         control.layout()
+        control.view.update_vitesse_repere()
+        control.view.update_temps()
 
 
     def menubar(self) :

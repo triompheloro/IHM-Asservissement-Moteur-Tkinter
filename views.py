@@ -30,6 +30,50 @@ class Screen(Observer) :
         self.actions_binding()
         self.draw_axes()
 
+        self.to_be_actualized = 1
+
+        self.vitesse_repere = [10 for i in range(0, 100)]
+        self.vitesses = [1 for i in range(0, 100)]
+        self.intensites = [1 for i in range(0, 100)]
+        self.observe_vitesse = 1
+
+        self.vitesse_a_observer = []
+        self.intensite_a_observer = []
+
+        self.temps_min = 10
+        self.temps_max = 90
+
+
+    def get_vitesses(self):
+        return self.vitesses
+    def get_intensites(self):
+        return self.intensites
+
+    def get_vitesse_repere(self):
+        return self.vitesse_repere
+
+    def get_temps_min(self):
+        return self.temps_min
+    def get_temps_max(self):
+        return self.temps_max
+
+    def set_vitesse_repere(self,vitesse_repere) :
+        self.vitesse_repere=[vitesse_repere for i in range(0,100)]
+
+    def set_vitesses(self,vitesse):
+        self.vitesses = self.vitesses[1:] + [vitesse]
+
+    def set_intensites(self,intensite):
+        self.intensites = self.intensites[1:] + [intensite]
+
+
+    def set_temps_min(self, temps):
+        self.temps_min = temps
+
+    def set_temps_max(self, temps):
+        self.temps_max = temps
+
+
     def get_parent(self) :
         return self.parent
     def set_parent(self,parent) :
@@ -72,41 +116,48 @@ class Screen(Observer) :
                 self.vitesse.itemconfig(self.text_vitesse, text="--")
                 self.intensite.itemconfig(self.text_intensite, text="--")
 
-            vitesses = subject.get_vitesses()
-            if vitesses :
-                self.plot_line(vitesses,"blue", "vitesse_reelle")
-                print(vitesses)
-            else:
-                print("No vitesses !")
+            #tracer la courbe des vitesses
+            self.set_vitesses(vitesse)  # pour garder les vraies valeurs j'actualise toujours
+            self.set_intensites(intensite)
 
-            vitesse_repere = subject.get_vitesse_repere()
-            if vitesse_repere:
-                self.plot_line(vitesse_repere, "red", "vitesse_reference")
-                print(vitesse_repere)
+            if self.to_be_actualized == 1:
+                self.vitesse_a_observer = self.get_vitesses()
+                self.intensite_a_observer = self.get_intensites()
+            if self.observe_vitesse == 1 :
+                self.plot_line(self.vitesse_a_observer, "blue", "data_to_observe")
             else :
-                print("No vitesses repere !")
+                self.plot_line(self.intensite_a_observer, "green", "data_to_observe")
+
+            #print(self.get_vitesses())
 
         else:
             self.vitesse.itemconfig(self.text_vitesse, text="N/A")
             self.intensite.itemconfig(self.text_intensite, text="N/A")
 
+    # à implementer
+    def update_on_pause(self):
+        pass
 
-    def update_temps(self, subject):
-        if subject:
-            temps_min = subject.get_temps_min()
-            temps_max = subject.get_temps_max()
+    def update_vitesse_repere(self):
+        if self.to_be_actualized == 1:
+            # Tracer la ligne de la vitesse repere
+            self.plot_line(self.get_vitesse_repere(), "red", "vitesse_reference")
+            print(self.get_vitesse_repere())
 
-            if temps_min and temps_max:
-                self.tracer_axes_temps(subject.get_temps_min(),"temps_min")
-                self.tracer_axes_temps(subject.get_temps_max(),"temps_max")
+    def update_temps(self):
+        temps_min = self.get_temps_min()
+        temps_max = self.get_temps_max()
 
-                self.temps_aservissement.itemconfig(self.text_vitesse, text=str(temps_max-temps_min) + " s")
+        if temps_min and temps_max:
+            self.tracer_axes_temps(self.get_temps_min(),"temps_min")
+            self.tracer_axes_temps(self.get_temps_max(),"temps_max")
 
-            else:
-                self.temps_aservissement.itemconfig(self.text_vitesse, text="--")
-                print("temps_max ou temps min non defini")
-        else :
-            self.temps_aservissement.itemconfig(self.text_intensite, text="N/A")
+            self.temps_aservissement.itemconfig(self.text_vitesse, text=str(temps_max-temps_min) + " s")
+
+        else:
+            self.temps_aservissement.itemconfig(self.text_vitesse, text="--")
+            print("temps_max ou temps min non defini")
+
 
     def plot_line(self, vitesses, color, name):
         width = 600
@@ -183,7 +234,8 @@ if   __name__ == "__main__" :
 
    model.attach(view)
    model.notify()
-   model.notify_temps()
+   view.update_vitesse_repere()
+   view.update_temps()
 
    root.mainloop()
 

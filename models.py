@@ -26,11 +26,6 @@ class Communication(Subject) :
         Subject.__init__(self)
         self.intensite = 0
         self.vitesse = 0
-        self.vitesse_repere = [10 for i in range(0,100)]
-        self.vitesses = [1 for i in range(0,100)]
-
-        self.temps_min = 10
-        self.temps_max = 90
 
         self.inform_obervers = 1
 
@@ -40,46 +35,14 @@ class Communication(Subject) :
     def get_intensite(self) :
         return self.intensite
 
-    def get_vitesses(self):
-        return self.vitesses
-
-    def get_vitesse_repere(self):
-        return self.vitesse_repere
-
-    def get_temps_min(self):
-        return self.temps_min
-    def get_temps_max(self):
-        return self.temps_max
-
-
-
     def set_vitesse(self,vitesse) :
         self.vitesse=vitesse
-        if self.inform_obervers == 1 :
-            self.notify()
+        self.notify()
     def set_intensite(self,intensite) :
         self.intensite=intensite
-        if self.inform_obervers == 1:
-            self.notify()
-
-    def set_vitesse_repere(self,vitesse_repere) :
-        self.vitesse_repere=[vitesse_repere for i in range(0,100)]
-        if self.inform_obervers == 1:
-            self.notify()
-
-    def set_vitesses(self,vitesse):
-        self.vitesses = self.vitesses[1:] + [vitesse]
-        if self.inform_obervers == 1:
-            self.notify()
+        self.notify()
 
 
-    def set_temps_min(self, temps):
-        self.temps_min = temps
-        self.notify_temps()
-
-    def set_temps_max(self, temps):
-        self.temps_max = temps
-        self.notify_temps()
 
     # Ici, à chaque fois que je recois une nouvelle valeure,
     # je me à jour la liste des dernière valeur de vitesse

@@ -66,7 +66,6 @@ class Control :
             try:
                 vitesse, intensite = map(int, line.split(','))
                 self.model.set_vitesse(vitesse)
-                self.model.set_vitesses(vitesse)
                 self.model.set_intensite(intensite)
                 print(f"Vitesse={vitesse}, Intensité={intensite}")
             except ValueError:
@@ -137,11 +136,11 @@ class Control :
     def droite(self) :
         self.direction_droite = tk.Button(self.frame_buttons,image=self.droite_bg, text= "Droite" , cursor="hand2", padx=20, pady=5)
 
-    def braking(self) :
-        self.brake_action = tk.Button(self.frame_buttons, text= "Frein" ,cursor="hand2", padx=20, pady=5, width=10)
-
     def change_data_to_observe(self) :
-        self.change_data_action = tk.Button(self.frame_rotations, text= "Frein" ,cursor="hand2", padx=20, pady=5, width=10)
+        self.change_data_action = tk.Button(self.frame_buttons, text= "Intensite" ,cursor="hand2", padx=20, pady=5, width=10)
+
+    def braking(self) :
+        self.brake_action = tk.Button(self.frame_rotations, text= "Frein" ,cursor="hand2", padx=20, pady=5, width=10)
         
     def actions_binding(self) :
         self.scale_vitesse.bind("<B1-Motion>",self.on_vitesse_action)
@@ -157,7 +156,8 @@ class Control :
     def on_vitesse_action(self,event):
         vitesse = self.var_vitesse.get()
         print("Vitesse = ", vitesse)
-        self.model.set_vitesse_repere(vitesse)
+        self.view.set_vitesse_repere(vitesse)
+        self.view.update_vitesse_repere()
 
         if self.ser.is_open:
             msg = f"{vitesse}\n"
@@ -166,12 +166,14 @@ class Control :
     def on_temps_min_action(self,event):
         temps_min = self.var_temps_min.get()
         print("Vitesse = ", temps_min)
-        self.model.set_temps_min(temps_min)
+        self.view.set_temps_min(temps_min)
+        self.view.update_temps()
 
     def on_temps_max_action(self,event):
         temps_max = self.var_temps_max.get()
         print("Vitesse = ", temps_max)
-        self.model.set_temps_max(temps_max)
+        self.view.set_temps_max(temps_max)
+        self.view.update_temps()
 
     def on_change_rotation(self, event):
         nouveau_sens = self.change_rotation.get()
@@ -181,12 +183,17 @@ class Control :
             print("Sens : ", 0)
 
     def on_change_data_action(self, event):
-        print("Vous avez réussi à mettre en place le boutton")
+        self.view.observe_vitesse = 0 if self.view.observe_vitesse == 1 else 1
+        if self.view.observe_vitesse == 1:
+            self.change_data_action.configure(text="Intensite")
+        else :
+            self.change_data_action.configure(text="Vitesse")
 
     def on_pause_action(self, event):
-        self.model.inform_obervers = 0 if self.model.inform_obervers == 1 else 1
+        self.view.to_be_actualized  = 0 if self.view.to_be_actualized == 1 else 1
+        #self.view.update()
 
-        if self.model.inform_obervers == 1:
+        if self.view.to_be_actualized == 1:
             self.pause_action.configure(text="Pause")
         else :
             self.pause_action.configure(text="Play")
@@ -202,10 +209,10 @@ class Control :
     def on_brake_action(self,event):
         self.set_brake(not self.brake)
         if self.brake:
-            self.brake_action.configure(text="Brake")
+            self.brake_action.configure(text="Freiner")
             print("Brake = 1")
         else :
-            self.brake_action.configure(text="Start")
+            self.brake_action.configure(text="Demarer")
             print("Brake = 0")
 
     def layout(self,side="top") :
@@ -218,14 +225,13 @@ class Control :
 
         self.frame_rotations.pack(pady=5)
         self.change_rotation.pack(side="left")
-        self.change_data_action.pack(side="left", padx=5)
+        self.brake_action.pack(side="left", padx=5)
 
         self.frame_buttons.pack(pady=5)
-
         self.pause_action.pack(side="left", padx=5)
         self.direction_gauche.pack(side="left", padx=5)
         self.direction_droite.pack(side="left", padx=5)
-        self.brake_action.pack(side="left", padx=5)
+        self.change_data_action.pack(side="left", padx=5)
 
 
 
@@ -243,8 +249,8 @@ if   __name__ == "__main__" :
    view.layout()
    model.attach(view)
 
-   model.set_intensite(100)
-   model.set_vitesse(150)
+   model.set_intensite(0)
+   model.set_vitesse(0)
 
    control=Control(root,model,view, droite_img,gauche_img, 'COM4')
    control.layout()

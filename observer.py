@@ -12,6 +12,10 @@ class Subject(object):
         for obs in self.observers:
             obs.update_temps(self)
 
+    def notify_on_pause(self):
+        for obs in self.observers:
+            obs.update_on_pause(self)
+
     def attach(self, obs):
         if DEBUG :
             print(type(self).__name__+".attach()")
