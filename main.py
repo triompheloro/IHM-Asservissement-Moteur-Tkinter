@@ -18,7 +18,8 @@ else :
     from tkinter import filedialog 
 
 from pathlib import Path
-import sqlite3
+import pandas as pd
+import time
 
 
 from models import Communication
@@ -172,8 +173,6 @@ class MainWindow(tk.Tk) :
         self.create()
 
     def create(self) :
-
-
         self.model=Communication()
         frame=tk.LabelFrame(self,name="IPS")
         view=Screen(frame)

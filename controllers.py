@@ -18,6 +18,7 @@ else :
 
 from models import Communication
 from views import Screen
+from tkinter import ttk
 
 
 
@@ -35,6 +36,18 @@ class Control :
         self.gui()
         self.actions_binding()
         self.update_from_system()
+
+        self.style = ttk.Style()
+        self.style.configure(
+            "Custom.TCombobox",
+            fieldbackground="#ffffff",
+            background="#e1e1e1",
+            foreground="#333333",
+            bordercolor="#999999",
+            lightcolor="#cccccc",
+            darkcolor="#333333",
+            padding=8
+        )
 
 
     def set_direction(self,direction) :
@@ -64,16 +77,21 @@ class Control :
     def gui(self):
         self.frame=tk.LabelFrame(self.parent,text="Control")
         self.frame_temps = tk.Frame(self.frame)
+        self.frame_rotations = tk.Frame(self.frame)
         self.frame_buttons = tk.Frame(self.frame)
+
         self.scale_vitesse()
 
         self.scale_temps_min()
         self.scale_temps_max()
 
+        self.chage_rotation()
+
         self.pause()
         self.gauche()
         self.droite()
         self.braking()
+        self.change_data_to_observe()
     
     def scale_vitesse(self) :
         self.var_vitesse=tk.IntVar()
@@ -99,6 +117,16 @@ class Control :
                              orient="horizontal",length=250,
                              from_=50,to=100,tickinterval=10,resolution=1)
 
+    def chage_rotation(self) :
+        self.change_rotation=ttk.Combobox(
+            self.frame_rotations,
+            values=["Sens Trigonométrique", "Sens aiguille d'une montre"],
+            width=40,
+            style="Custom.TCombobox",
+        )
+        self.change_rotation.set("Sens Trigonométrique")
+
+
 
     def pause(self) :
         self.pause_action = tk.Button(self.frame_buttons, text= "Pause" ,cursor="hand2", padx=20, pady=5, width=10)
@@ -111,6 +139,9 @@ class Control :
 
     def braking(self) :
         self.brake_action = tk.Button(self.frame_buttons, text= "Frein" ,cursor="hand2", padx=20, pady=5, width=10)
+
+    def change_data_to_observe(self) :
+        self.change_data_action = tk.Button(self.frame_rotations, text= "Frein" ,cursor="hand2", padx=20, pady=5, width=10)
         
     def actions_binding(self) :
         self.scale_vitesse.bind("<B1-Motion>",self.on_vitesse_action)
@@ -120,6 +151,8 @@ class Control :
         self.direction_gauche.bind("<Button-1>", self.on_gauche_action)
         self.direction_droite.bind("<Button-1>", self.on_droite_action)
         self.brake_action.bind("<Button-1>", self.on_brake_action)
+        self.change_rotation.bind("<<ComboboxSelected>>",self.on_change_rotation)
+        self.change_data_action.bind("<Button-1>", self.on_change_data_action)
 
     def on_vitesse_action(self,event):
         vitesse = self.var_vitesse.get()
@@ -139,6 +172,16 @@ class Control :
         temps_max = self.var_temps_max.get()
         print("Vitesse = ", temps_max)
         self.model.set_temps_max(temps_max)
+
+    def on_change_rotation(self, event):
+        nouveau_sens = self.change_rotation.get()
+        if nouveau_sens == "Sens aiguille d'une montre":
+            print("Sens : ", 1)
+        else :
+            print("Sens : ", 0)
+
+    def on_change_data_action(self, event):
+        print("Vous avez réussi à mettre en place le boutton")
 
     def on_pause_action(self, event):
         self.model.inform_obervers = 0 if self.model.inform_obervers == 1 else 1
@@ -173,6 +216,9 @@ class Control :
         self.scale_temps_min.pack(side="left")
         self.scale_temps_max.pack(side="left")
 
+        self.frame_rotations.pack(pady=5)
+        self.change_rotation.pack(side="left")
+        self.change_data_action.pack(side="left", padx=5)
 
         self.frame_buttons.pack(pady=5)
 
@@ -180,6 +226,7 @@ class Control :
         self.direction_gauche.pack(side="left", padx=5)
         self.direction_droite.pack(side="left", padx=5)
         self.brake_action.pack(side="left", padx=5)
+
 
 
 

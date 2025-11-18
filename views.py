@@ -65,11 +65,9 @@ class Screen(Observer) :
             vitesse = subject.get_vitesse()
             intensite = subject.get_intensite()
 
-
-
             if vitesse is not None and intensite is not None:
-                self.vitesse.itemconfig(self.text_vitesse, text=str(vitesse))
-                self.intensite.itemconfig(self.text_intensite, text=str(intensite))
+                self.vitesse.itemconfig(self.text_vitesse, text=str(vitesse) + " mV")
+                self.intensite.itemconfig(self.text_intensite, text=str(intensite) + " mA")
             else:
                 self.vitesse.itemconfig(self.text_vitesse, text="--")
                 self.intensite.itemconfig(self.text_intensite, text="--")
