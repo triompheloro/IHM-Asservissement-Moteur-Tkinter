@@ -20,9 +20,6 @@ from models import Communication
 from views import Screen
 from tkinter import ttk
 
-
-
-
 class Control :
     def __init__(self,parent,model,view , droite_bg , gauche_bg, port):
         self.direction = 0
@@ -67,6 +64,7 @@ class Control :
                 vitesse, intensite = map(int, line.split(','))
                 self.model.set_vitesse(vitesse)
                 self.model.set_intensite(intensite)
+                self.model.update_data_to_save(vitesse,intensite)
                 print(f"Vitesse={vitesse}, Intensité={intensite}")
             except ValueError:
                 pass
@@ -199,12 +197,19 @@ class Control :
             self.pause_action.configure(text="Play")
 
     def on_gauche_action(self,event):
-        self.set_direction(0)
-        print("Direction = ",self.get_direction())
+        # self.set_direction(0)
+        # print("Direction = ",self.get_direction())
+        print("Gauche : ", 1)
+        self.view.update_on_gauche()
+
+
 
     def on_droite_action(self,event):
-        self.set_direction(1)
-        print("Direction = ",self.get_direction())
+        # self.set_direction(1)
+        # print("Direction = ",self.get_direction())
+
+        print("Droite : ", 1)
+        self.view.update_on_droite()
 
     def on_brake_action(self,event):
         self.set_brake(not self.brake)

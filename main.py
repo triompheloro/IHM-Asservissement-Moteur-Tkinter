@@ -20,6 +20,7 @@ else :
 from pathlib import Path
 import pandas as pd
 import time
+import datetime
 
 
 from models import Communication
@@ -138,9 +139,19 @@ class MainWindow(tk.Tk) :
         result= tk.messagebox.askquestion(title="Sauvegarde", message=" Souhaitez-vous sauvegarder le fichier ?")
 
         if result=='yes' :
-            model.delete()
-            model.create()
-            #pass
+            vitesses = model.get_vitesse_to_save()
+            intensites = model.get_intensite_to_save()
+            temps =  datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+
+            dataframe = {
+                "Vitesses": vitesses,
+                "Intensites": intensites,
+            }
+
+            dataFrame = pd.DataFrame(dataframe)
+            file_name = "assets/data/" + str(temps) + "-data.csv"
+            dataFrame.to_csv(file_name,index_label="Temps")
+
         else :
             self.saveAs_action(model)
         return
@@ -174,6 +185,7 @@ class MainWindow(tk.Tk) :
         self.menubar()
         self.create()
 
+
     def create(self) :
         self.model=Communication()
         frame=tk.LabelFrame(self,name="IPS")
@@ -181,3 +193,4 @@ class MainWindow(tk.Tk) :
         frame.pack()
         view.layout()
         self.model.attach(view)
+

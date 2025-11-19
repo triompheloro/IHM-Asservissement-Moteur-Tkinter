@@ -27,6 +27,9 @@ class Communication(Subject) :
         self.intensite = 0
         self.vitesse = 0
 
+        self.vitesse_to_save = []
+        self.intensite_to_save = []
+
         self.inform_obervers = 1
 
     def get_vitesse(self) :
@@ -35,6 +38,11 @@ class Communication(Subject) :
     def get_intensite(self) :
         return self.intensite
 
+    def get_intensite_to_save(self) :
+        return self.intensite_to_save
+    def get_vitesse_to_save(self) :
+        return self.vitesse_to_save
+
     def set_vitesse(self,vitesse) :
         self.vitesse=vitesse
         self.notify()
@@ -42,6 +50,15 @@ class Communication(Subject) :
         self.intensite=intensite
         self.notify()
 
+    def set_intensite_to_save(self,intensite) :
+        self.intensite_to_save.append(intensite)
+
+    def set_vitesse_to_save(self,vitesse) :
+        self.vitesse_to_save.append(vitesse)
+
+    def update_data_to_save(self,vitesse,intensite):
+        self.set_vitesse_to_save(vitesse)
+        self.set_intensite_to_save(intensite)
 
 
     # Ici, à chaque fois que je recois une nouvelle valeure,

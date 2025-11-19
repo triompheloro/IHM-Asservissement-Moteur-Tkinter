@@ -19,6 +19,29 @@ else :
 
 from models import Communication
 from observer import Observer
+import numpy as np
+
+
+def find_last_subarray_index(L, P): # Je veux chercher la liste P dans L
+    L = np.asarray(L)
+    P = np.asarray(P)
+    m = len(P)
+
+    # Générer toutes les fenêtres de taille m
+    windows = np.lib.stride_tricks.sliding_window_view(L, m)
+
+    # Comparer toutes les fenêtres
+    matches = np.all(windows == P, axis=1)
+
+    # Trouver tous les indices où P apparaît
+    indices = np.where(matches)[0]
+
+    if len(indices) == 0:
+        return -1
+
+    # Retourner le dernier index
+    return indices[-1]
+
 
 class Screen(Observer) :
     def __init__(self,parent,bg="white",largeur=150,hauteur=60):
@@ -61,10 +84,10 @@ class Screen(Observer) :
         self.vitesse_repere=[vitesse_repere for i in range(0,100)]
 
     def set_vitesses(self,vitesse):
-        self.vitesses = self.vitesses[1:] + [vitesse]
+        self.vitesses.append(vitesse)
 
     def set_intensites(self,intensite):
-        self.intensites = self.intensites[1:] + [intensite]
+        self.intensites.append(intensite)
 
 
     def set_temps_min(self, temps):
@@ -121,22 +144,48 @@ class Screen(Observer) :
             self.set_intensites(intensite)
 
             if self.to_be_actualized == 1:
-                self.vitesse_a_observer = self.get_vitesses()
-                self.intensite_a_observer = self.get_intensites()
+                self.vitesse_a_observer = self.get_vitesses()[-100:].copy()
+                self.intensite_a_observer = self.get_intensites()[-100:].copy()
+
             if self.observe_vitesse == 1 :
                 self.plot_line(self.vitesse_a_observer, "blue", "data_to_observe")
             else :
                 self.plot_line(self.intensite_a_observer, "green", "data_to_observe")
-
-            #print(self.get_vitesses())
 
         else:
             self.vitesse.itemconfig(self.text_vitesse, text="N/A")
             self.intensite.itemconfig(self.text_intensite, text="N/A")
 
     # à implementer
-    def update_on_pause(self):
-        pass
+    def update_on_gauche(self):
+        if self.to_be_actualized == 0:
+            vitesses = self.get_vitesses().copy()
+            intensites = self.get_intensites().copy()
+
+            indice_de_data = find_last_subarray_index(vitesses,self.vitesse_a_observer)
+            print(indice_de_data)
+            if indice_de_data != -1:
+                self.vitesse_a_observer = vitesses[indice_de_data-1:indice_de_data+99].copy()
+                self.intensite_a_observer = intensites[indice_de_data-1:indice_de_data+99].copy()
+                if self.observe_vitesse == 1:
+                    self.plot_line(self.vitesse_a_observer, "blue", "data_to_observe")
+                else:
+                    self.plot_line(self.intensite_a_observer, "green", "data_to_observe")
+
+    def update_on_droite(self):
+        if self.to_be_actualized == 0:
+            vitesses = self.get_vitesses().copy()
+            intensites = self.get_intensites().copy()
+
+            indice_de_data = find_last_subarray_index(vitesses,self.vitesse_a_observer)
+            print(indice_de_data)
+            if indice_de_data != -1:
+                self.vitesse_a_observer = vitesses[indice_de_data+1:indice_de_data+101].copy()
+                self.intensite_a_observer = intensites[indice_de_data+1:indice_de_data+101].copy()
+                if self.observe_vitesse == 1:
+                    self.plot_line(self.vitesse_a_observer, "blue", "data_to_observe")
+                else:
+                    self.plot_line(self.intensite_a_observer, "green", "data_to_observe")
 
     def update_vitesse_repere(self):
         if self.to_be_actualized == 1:
@@ -157,6 +206,7 @@ class Screen(Observer) :
         else:
             self.temps_aservissement.itemconfig(self.text_vitesse, text="--")
             print("temps_max ou temps min non defini")
+
 
 
     def plot_line(self, vitesses, color, name):
